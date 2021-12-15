@@ -8,15 +8,53 @@ using Pavlok.Models;
 
 namespace Pavlok
 {
-    public class PavlokClient
+    public interface IPavlokClient
     {
+        /// <summary>
+        /// Login via resource owner password grant flow (undocumented, but appears to work :shrug:).
+        /// Internally, the api appears to use the Ruby Doorkeeper library.
+        /// </summary>
+        Task<LoginResult> Login(string username, string password);
+
+        /// <summary>
+        /// Generates a vibration stimulus to the user's Pavlok device.
+        /// </summary>
+        /// <param name="value">The value intensifier for the stimulus. Allowed values: 1-255</param>
+        /// <param name="loginResult"></param>
+        /// <returns></returns>
+        Task SendVibration(int value, LoginResult loginResult);
+
+        /// <summary>
+        /// Generates a beep stimulus to the user's Pavlok device.
+        /// </summary>
+        /// <param name="value">The value intensifier for the stimulus. Allowed values: 1-255</param>
+        /// <param name="loginResult"></param>
+        /// <returns></returns>
+        Task SendBeep(int value, LoginResult loginResult);
+
+        /// <summary>
+        /// Generates a shock stimulus to the user's Pavlok device.
+        /// </summary>
+        /// <param name="value">The value intensifier for the stimulus. Allowed values: 1-255</param>
+        /// <param name="loginResult"></param>
+        /// <returns></returns>
+        Task ShockBeep(int value, LoginResult loginResult);
+    }
+
+    public class PavlokClient : IPavlokClient
+    {
+        // TODO:
+        // /api/v1/me
+        // /api/v2/fitness/steps?from=2021-12-14&to=2021-12-14
+        // /api/v1/stimuli/pattern/
+
         private readonly HttpClient _client;
 
         public PavlokClient(HttpClient client)
         {
             _client = client;
         }
-
+        
         /// <summary>
         /// Login via resource owner password grant flow (undocumented, but appears to work :shrug:).
         /// Internally, the api appears to use the Ruby Doorkeeper library.
