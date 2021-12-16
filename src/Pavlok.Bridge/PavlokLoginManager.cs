@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Pavlok.Models;
 
 namespace Pavlok.Bridge
@@ -11,10 +12,12 @@ namespace Pavlok.Bridge
     {
         private readonly ConcurrentDictionary<Login, LoginResult> _loginResults = new();
         private readonly IPavlokLoginClient _loginClient;
+        private readonly ILogger<PavlokLoginManager> _logger;
 
-        public PavlokLoginManager(IPavlokLoginClient loginClient)
+        public PavlokLoginManager(IPavlokLoginClient loginClient, ILogger<PavlokLoginManager> logger)
         {
             _loginClient = loginClient;
+            _logger = logger;
         }
 
         public async Task<LoginLease> GetLogin(string username, string password)
@@ -25,14 +28,21 @@ namespace Pavlok.Bridge
                 if (!_loginResults.TryGetValue(login, out var loginResult)
                     || HasExpired(loginResult))
                 {
+                    _logger.LogInformation($"Fetching authentication token for user '{username}'.");
+
                     loginResult = await _loginClient.Login(login.Username, login.Password);
                     _loginResults.TryAdd(login, loginResult);
+                }
+                else
+                {
+                    _logger.LogInformation($"Using cached authentication token for user '{username}'.");
                 }
 
                 return new SuccessfulLoginLease(username, loginResult.AuthenticationHeader);
             }
             catch (HttpRequestException e)
             {
+                _logger.LogWarning(e, $"Failed to fetch authentication token for user '{username}'.");
                 return new FailedLoginLease(username, e.StatusCode);
             }
         }

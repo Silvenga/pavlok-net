@@ -1,0 +1,8 @@
+version: "2.1"
+services:
+  bridge:
+    build:
+      context: .
+      dockerfile: ./src/Pavlok.Bridge/Dockerfile
+    ports:
+      - "5000:80"

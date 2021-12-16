@@ -2,12 +2,16 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<LangVersion>10.0</LangVersion> 
+		<LangVersion>10.0</LangVersion>
 		<nullable>enable</nullable>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Pavlok\Pavlok.csproj" />
+		<PackageReference Include="AspNetCoreRateLimit" Version="4.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Pavlok\Pavlok.csproj" />
 	</ItemGroup>
 
 </Project>

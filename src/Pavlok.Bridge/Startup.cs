@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,13 @@ namespace Pavlok.Bridge
 
             services.AddSingleton<PavlokLoginManager>();
             services.AddTransient(_ => PavlokClientFactory.CreateLoginClient());
+            services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+            services.AddOptions();
+            services.AddMemoryCache();
+            services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
+            services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
+            services.AddInMemoryRateLimiting();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -29,6 +37,8 @@ namespace Pavlok.Bridge
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseIpRateLimiting();
 
             app.UseRouting();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

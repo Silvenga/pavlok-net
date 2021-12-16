@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Pavlok.Bridge.Controllers
 {
@@ -11,27 +12,32 @@ namespace Pavlok.Bridge.Controllers
     public class StimuliController : Controller
     {
         private readonly PavlokLoginManager _loginManager;
+        private readonly ILogger<StimuliController> _logger;
 
-        public StimuliController(PavlokLoginManager loginManager)
+        public StimuliController(PavlokLoginManager loginManager, ILogger<StimuliController> logger)
         {
             _loginManager = loginManager;
+            _logger = logger;
         }
 
         [HttpPost("beep")]
         public async Task<IActionResult> SendBeep([FromQuery] int value = 128)
         {
+            _logger.LogWarning("Attempting to send a 'beep'.");
             return await Send(client => client.SendBeep(value));
         }
 
         [HttpPost("vibration")]
         public async Task<IActionResult> SendVibration([FromQuery] int value = 128)
         {
+            _logger.LogWarning("Attempting to send a 'vibration'.");
             return await Send(client => client.SendVibration(value));
         }
 
         [HttpPost("shock")]
         public async Task<IActionResult> SendShock([FromQuery] int value = 128)
         {
+            _logger.LogWarning("Attempting to send a 'shock'.");
             return await Send(client => client.SendShock(value));
         }
 
@@ -39,6 +45,7 @@ namespace Pavlok.Bridge.Controllers
         {
             if (!TryGetAuthenticationHeader(out var username, out var password))
             {
+                _logger.LogWarning("Missing authentication header.");
                 return Unauthorized();
             }
 
