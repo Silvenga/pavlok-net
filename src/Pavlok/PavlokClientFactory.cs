@@ -1,29 +1,49 @@
 ﻿using System;
 using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace Pavlok
 {
-    public class PavlokClientFactory
+    public static class PavlokClientFactory
     {
-        public static IPavlokClient Create(string baseAddress = "https://pavlok-mvp.herokuapp.com")
+        public const string DefaultBaseAddress = "https://pavlok-mvp.herokuapp.com";
+
+        public static IPavlokStimuliClient CreateStimuliClient(string authenticationHeader, string baseAddress = DefaultBaseAddress)
         {
             var httpClient = new HttpClient
             {
                 BaseAddress = new Uri(baseAddress)
             };
+            ApplyUserAgent(httpClient);
 
-            // TODO make this dynamic
-            httpClient.DefaultRequestHeaders.UserAgent.Clear();
-            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Pavlok.NET", "1.0.0"));
-            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("https://github.com/Silvenga/pavlok-net"));
-
-            return Create(httpClient);
+            return CreateStimuliClient(httpClient, authenticationHeader);
         }
 
-        public static IPavlokClient Create(HttpClient httpClient)
+        public static IPavlokStimuliClient CreateStimuliClient(HttpClient httpClient, string authenticationHeader)
         {
-            return new PavlokClient(httpClient);
+            return new PavlokStimuliStimuliClient(httpClient, authenticationHeader);
+        }
+
+        public static IPavlokLoginClient CreateLoginClient(string baseAddress = DefaultBaseAddress)
+        {
+            var httpClient = new HttpClient
+            {
+                BaseAddress = new Uri(baseAddress)
+            };
+            ApplyUserAgent(httpClient);
+
+            return CreateLoginClient(httpClient);
+        }
+
+        public static IPavlokLoginClient CreateLoginClient(HttpClient httpClient)
+        {
+            return new PavlokLoginClient(httpClient);
+        }
+
+        private static void ApplyUserAgent(HttpClient httpClient)
+        {
+            // TODO make this dynamic
+            httpClient.DefaultRequestHeaders.UserAgent.Clear();
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Pavlok.NET/1.0.0 (https://github.com/Silvenga/pavlok-net)");
         }
     }
 }
