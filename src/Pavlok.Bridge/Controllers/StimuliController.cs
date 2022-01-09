@@ -55,7 +55,15 @@ namespace Pavlok.Bridge.Controllers
                 case PavlokLoginManager.SuccessfulLoginLease successful:
                     using (var pavlokStimuliClient = PavlokClientFactory.CreateStimuliClient(successful.AuthenticationHeader))
                     {
-                        await func.Invoke(pavlokStimuliClient);
+                        try
+                        {
+                            await func.Invoke(pavlokStimuliClient);
+                        }
+                        catch (PavlokApiException e)
+                        {
+                            _logger.LogError(e, "Get a Pavlok request error: {status-code}, {body}", e.StatusCode, e.Body);
+                            throw;
+                        }
                     }
 
                     return Ok();

@@ -56,7 +56,11 @@ namespace Pavlok
 
         private static async Task<T> GetResponseBody<T>(HttpResponseMessage responseMessage)
         {
-            responseMessage.EnsureSuccessStatusCode();
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var body = await responseMessage.Content.ReadAsStringAsync();
+                throw new PavlokApiException(body, responseMessage.StatusCode);
+            }
 
             var json = await responseMessage.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(json)!;

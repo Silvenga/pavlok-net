@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Pavlok.Models;
@@ -40,9 +39,9 @@ namespace Pavlok.Bridge
 
                 return new SuccessfulLoginLease(username, loginResult.AuthenticationHeader);
             }
-            catch (HttpRequestException e)
+            catch (PavlokApiException e)
             {
-                _logger.LogWarning(e, $"Failed to fetch authentication token for user '{username}'.");
+                _logger.LogWarning(e, $"Failed to fetch authentication token for user '{username}' (Status Code: {e.StatusCode}, Body: '{e.Body}').");
                 return new FailedLoginLease(username, e.StatusCode);
             }
         }

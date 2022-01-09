@@ -85,7 +85,11 @@ namespace Pavlok
             };
 
             using var responseMessage = await _client.SendAsync(request);
-            responseMessage.EnsureSuccessStatusCode();
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                var body = await responseMessage.Content.ReadAsStringAsync();
+                throw new PavlokApiException(body, responseMessage.StatusCode);
+            }
         }
 
         public void Dispose()
